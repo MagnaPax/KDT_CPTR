@@ -20,3 +20,6 @@ STYLESHEET_PATH = ROOT_DIR / "styles" / "stylesheet.qss"
 
 # 로그파일 저장 경로
 LOG_DIR = ROOT_DIR / "logs"
+
+# TwinCAT DLL 파일 경로 (libs 폴더)
+TC_ADS_DLL_PATH = ROOT_DIR / "libs" / "TcAdsDll.dll"
