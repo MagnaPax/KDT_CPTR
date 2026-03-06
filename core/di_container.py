@@ -19,7 +19,9 @@ https://python-dependency-injector.ets-labs.org/examples/application-multiple-co
 """
 from dependency_injector import containers, providers
 
+from config.app_config import APP_CONFIG
 from managers.base_manager import BaseManager
+from managers.connection_manager import ConnectionManager
 from view_models.main_window_vm import MainViewModel
 
 
@@ -34,6 +36,11 @@ class AppContainer(containers.DeclarativeContainer):
     # providers.Singleton: 요청할 때마다 새로 만들지 않고, 
     # 최초 1회 생성된 객체 공유 (공통 상태 유지에 필수)
     system_manager = providers.Singleton(BaseManager)
+    connection_manager = providers.Singleton(
+        ConnectionManager,
+        ams_net_id=APP_CONFIG.twincat_net_id,
+        port=APP_CONFIG.twincat_port,
+    )
     
     # 향후 추가될 예시:
     # db_manager = providers.Singleton(DatabaseManager)
@@ -46,5 +53,6 @@ class AppContainer(containers.DeclarativeContainer):
     # 이때 괄호 안의 keyword argument(system_manager 등)가 해당 클래스의 __init__에 자동 주입됨.
     main_view_model = providers.Factory(
         MainViewModel,
-        system_manager=system_manager  # MainViewModel의 __init__(self, system_manager) 에 매핑됨
+        system_manager=system_manager,
+        connection_manager=connection_manager
     )

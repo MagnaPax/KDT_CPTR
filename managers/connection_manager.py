@@ -6,15 +6,17 @@ ViewModel은 이 Manager를 주입받아 쓰거나 EventBus를 구독한다.
 from PySide6.QtCore import QObject, QTimer, Signal
 
 from core.events.qt_bus import EVENT_BUS
+from managers.base_manager import BaseManager
 from services.twincat_service import TwinCATService
 
-class ConnectionManager(QObject):
+class ConnectionManager(BaseManager):
     # 연결 상태 변경 시그널 (ViewModel 연결용)
     connection_state_changed = Signal(bool) # True면 연결됨, False면 끊김
     
-    def __init__(self, ams_net_id: str):
+    def __init__(self, ams_net_id: str, port: int = 851):
         super().__init__()
         self.ams_net_id = ams_net_id
+        self.port = port
         
         # 실제 워커 스레드를 돌려줄 서비스 인스턴스 소유
         self.twincat_service = TwinCATService()
@@ -53,10 +55,16 @@ class ConnectionManager(QObject):
     # ============================
     def _do_connect(self):
         self.retry_count += 1
-        EVENT_BUS.system.info.emit(f"TwinCAT 연결 시도 중... ({self.retry_count}/{self.max_retries})")
+        msg = f"TwinCAT 연결 시도 중... ({self.retry_count}/{self.max_retries})"
+
+        # 1. 파일과 터미널에 기록 (BaseManager의 기능 상속)
+        self.log_info(msg)
+
+        # 2. 로딩 창이나 UI 상태바에 알림 (System 채널 방송)
+        EVENT_BUS.system.info.emit(msg) 
         
         # 서비스야, 워커 만들어서 연결 시작해라.
-        self.twincat_service.start_connection(self.ams_net_id)
+        self.twincat_service.start_connection(self.ams_net_id, self.port)
 
 
     def _on_service_connected(self, client_instance):

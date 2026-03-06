@@ -75,6 +75,9 @@ class _Data:
 
 @dataclass
 class _System:
+    info: SimpleSignal = SimpleSignal()
+    warning: SimpleSignal = SimpleSignal()
+    error: SimpleSignal = SimpleSignal()
     system_error_occurred: SimpleSignal = SimpleSignal()
     system_notification_received: SimpleSignal = SimpleSignal()
 

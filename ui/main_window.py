@@ -2,7 +2,7 @@ from typing import Generic, TypeVar
 
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLabel, QMenuBar
-from PySide6.QtGui import QIcon, QAction, QKeySequence
+from PySide6.QtGui import QIcon, QAction, QKeySequence, QCloseEvent
 
 from config.app_config import APP_CONFIG
 from core.events.qt_bus import EVENT_BUS
@@ -19,9 +19,10 @@ class MainWindow(QMainWindow, Generic[T]):
     - ViewModel과 바인딩
     - 메뉴바 및 상태바 포함
     """
-    def __init__(self, view_model: T):
+    def __init__(self, view_model: T, connection_manager=None):
         super().__init__()
         self.view_model = view_model
+        self.connection_manager = connection_manager
         
         # 로그 소스 이름 설정
         self.log_source = self.__class__.__name__
@@ -90,6 +91,11 @@ class MainWindow(QMainWindow, Generic[T]):
     def _show_about(self):
         self.log_info("About 메뉴 클릭됨")
         # TODO: About 다이얼로그 표시
+
+    def closeEvent(self, event: QCloseEvent):
+        if self.connection_manager:
+            self.connection_manager.disconnect_all()
+        super().closeEvent(event)
 
     # --- 로깅 헬퍼 메서드 ---
     def log(self, message: str, level: str = "INFO"):

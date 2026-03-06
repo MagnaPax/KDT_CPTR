@@ -21,3 +21,11 @@ DEBUG = True
 [Log]
 ; 로그 파일 보관 기간
 ;   `./utilities/logger.py` 의 LOG_KEEP_DAYS 상수에 저장
+
+
+[TwinCAT]
+; AMS_NET_ID = 127.0.0.1.1.1
+; AMS_NET_ID = 5.143.171.16.1.1
+
+AMS_NET_ID = 5.143.171.16.1.1
+PORT = 851

@@ -26,6 +26,9 @@ from PySide6.QtCore import QMetaMethod, QObject, Signal
 class SystemSignals(QObject):
     """시스템 상태(에러, 알림 등)와 관련된 시그널 모음"""
 
+    info = Signal(str)
+    warning = Signal(str)
+    error = Signal(str)
     system_error_occurred = Signal(str)  # 치명적인 에러 발생 시 (메시지)
     system_notification_received = Signal(str)  # 일반적인 시스템 알림 시 (메시지)
 

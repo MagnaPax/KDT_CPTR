@@ -15,6 +15,7 @@ class AppPaths:
 
         # 설정 파일, 아이콘, 스타일시트, 로그 디렉토리 등
         self.CONFIG_INI_PATH = self.ROOT_DIR / "config" / "settings.ini"
+        self.CONFIG_TEMPLATE_PATH = self.ROOT_DIR / "config" / "settings.ini.template"
         self.APP_ICON = self.ROOT_DIR / "resources" / "KDT_logo.png"
         self.STYLESHEET_PATH = self.ROOT_DIR / "styles" / "stylesheet.qss"
         self.LOG_DIR = self.ROOT_DIR / "logs"
@@ -51,9 +52,23 @@ class AppConfig:
     def _load_settings(self) -> configparser.ConfigParser:
         """settings.ini 파일을 로드한다."""
         config = configparser.ConfigParser()
+        # 템플릿을 먼저 읽어서 기본값으로 사용하고,
+        # 실제 settings.ini가 있으면 사용자 값을 덮어쓴다.
+        if self.paths.CONFIG_TEMPLATE_PATH.exists():
+            config.read(str(self.paths.CONFIG_TEMPLATE_PATH), encoding="utf-8")
         if self.paths.CONFIG_INI_PATH.exists():
             config.read(str(self.paths.CONFIG_INI_PATH), encoding="utf-8")
         return config
+
+    @property
+    def is_packaged(self) -> bool:
+        """앱이 패키징된 상태인지 여부"""
+        return self.paths.is_packaged
+
+    @property
+    def app_name(self) -> str:
+        """앱 이름을 반환한다."""
+        return self._config.get("App", "APP_NAME", fallback="Quiet Zone Scanner")
 
     @property
     def is_packaged(self) -> bool:
@@ -73,6 +88,14 @@ class AppConfig:
     @property
     def debug(self) -> bool:
         return self._config.getboolean("App", "DEBUG", fallback=False)
+
+    @property
+    def twincat_net_id(self) -> str:
+        return self._config.get("TwinCAT", "AMS_NET_ID", fallback="127.0.0.1.1.1")
+
+    @property
+    def twincat_port(self) -> int:
+        return self._config.getint("TwinCAT", "PORT", fallback=851)
 
 
 # 전역 설정 인스턴스

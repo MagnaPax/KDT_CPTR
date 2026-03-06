@@ -63,8 +63,15 @@ class BaseService(QObject):
         if worker_id and worker_id in self._active_workers:
             existing_thread, _ = self._active_workers[worker_id]
 
+            # C++ 객체가 이미 소멸되었는지 먼저 확인 (RuntimeError 방지)
+            try:
+                is_running = existing_thread.isRunning()
+            except RuntimeError:
+                # 이미 C++ 메모리에서 지워진 죽은 스레드. 안전하게 무시하고 덮어씌움
+                is_running = False
+
             # 같은 ID의 작업이 이미 실행 중이라면?
-            if existing_thread.isRunning():
+            if is_running:
                 if force_interrupt:
                     # [긴급] 저리 비켜! 내가 할 거야.
                     self.log_warning(f"긴급 요청: 기존 작업({worker_id})을 중단하고 새 작업을 시작합니다.")
@@ -74,8 +81,12 @@ class BaseService(QObject):
                     self.log_warning(f"워커({worker_id})가 이미 실행 중입니다. 새로운 요청은 무시됩니다.")
                     return None
             else:
-                # 죽어있는 스레드일 경우 정리를 위해 종료 요청
-                self._finalize_worker_dict(worker_id, existing_thread)
+                # 죽어있는 스레드일 경우 정리를 위해 종료 요청 (이미 지워졌을 수도 있으므로 예외 처리)
+                try:
+                    self._finalize_worker_dict(worker_id, existing_thread)
+                except RuntimeError:
+                    if worker_id in self._active_workers:
+                        del self._active_workers[worker_id]
 
         # 2. 스레드 생성, 워커를 스레드로 이동
         thread = QThread()

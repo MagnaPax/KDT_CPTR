@@ -21,12 +21,12 @@ class TwinCATService(BaseService):
         super().__init__()
         self.active_client: Optional[TwinCATClient] = None
         
-    def start_connection(self, ams_net_id: str):
+    def start_connection(self, ams_net_id: str, port: int = 851):
         """백그라운드 스레드에서 TwinCAT 연결 작업을 시작한다."""
         self.log_info(f"TwinCAT 연결 작업(워커) 지시: {ams_net_id}")
         
         # 1. 일꾼 생성
-        worker = TwinCATConnectWorker(ams_net_id)
+        worker = TwinCATConnectWorker(ams_net_id, port=port)
         
         # 2. 일꾼의 통신선(시그널) 연결
         worker.connection_established.connect(self._on_connection_success)

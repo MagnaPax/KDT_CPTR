@@ -12,10 +12,10 @@ class TwinCATConnectWorker(BaseWorker):
     # 연결 성공 시 방출할 커스텀 시그널
     connection_established = Signal(object) 
     
-    def __init__(self, ams_net_id: str):
+    def __init__(self, ams_net_id: str, port: int = 851):
         super().__init__()
         self.ams_net_id = ams_net_id
-        self.client = TwinCATClient(self.ams_net_id)
+        self.client = TwinCATClient(self.ams_net_id, port=port)
 
     def process(self):
         """실제 백그라운드 스레드에서 돌아가는 연결 부"""
