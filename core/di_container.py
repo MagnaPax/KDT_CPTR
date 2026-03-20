@@ -23,6 +23,7 @@ from config.app_config import APP_CONFIG
 from managers.base_manager import BaseManager
 from managers.connection_manager import ConnectionManager
 from view_models.main_window_vm import MainViewModel
+from view_models.status_vm import StatusViewModel
 
 
 class AppContainer(containers.DeclarativeContainer):
@@ -33,9 +34,14 @@ class AppContainer(containers.DeclarativeContainer):
     # ==========================================================
     # 1. Managers (주로 싱글톤으로 유지됨)
     # ==========================================================
-    # providers.Singleton: 요청할 때마다 새로 만들지 않고, 
-    # 최초 1회 생성된 객체 공유 (공통 상태 유지에 필수)
+    # providers.Singleton: 
+    #       요청할 때마다 새로 만들지 않고, 
+    #       최초 1회 생성된 객체 공유 (공통 상태 유지에 필수)
+
+    # 1. System Manager (기본 관리자)
     system_manager = providers.Singleton(BaseManager)
+    
+    # 2. Connection Manager (연결 관리자)
     connection_manager = providers.Singleton(
         ConnectionManager,
         ams_net_id=APP_CONFIG.twincat_net_id,
@@ -46,13 +52,21 @@ class AppContainer(containers.DeclarativeContainer):
     # db_manager = providers.Singleton(DatabaseManager)
     # progress_manager = providers.Singleton(ProgressManager)
 
+
     # ==========================================================
     # 2. ViewModels (화면마다 새로 띄워야 하므로 Factory 패턴)
     # ==========================================================
-    # providers.Factory: 요청할 때마다 새로운 인스턴스를 찍어냄.
-    # 이때 괄호 안의 keyword argument(system_manager 등)가 해당 클래스의 __init__에 자동 주입됨.
+    # providers.Factory: 
+    #       요청할 때마다 새로운 인스턴스를 찍어냄.
+    #       이때 괄호 안의 keyword argument(system_manager 등)가 
+    #       해당 클래스의 __init__에 자동 주입됨.
     main_view_model = providers.Factory(
         MainViewModel,
         system_manager=system_manager,
+        connection_manager=connection_manager
+    )
+
+    status_view_model = providers.Factory(
+        StatusViewModel,
         connection_manager=connection_manager
     )

@@ -81,7 +81,7 @@ class AppEngine:
         # 4. AppContext 생성
         self.ctx = AppContext(event_bus=bus, log_listener=listener)
 
-        # 2-1) 스타일시트 적용
+        # 스타일시트 적용
         if self._qt_app:
             from config.app_config import APP_CONFIG
             from styles.style_manager import apply_stylesheet

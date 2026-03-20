@@ -56,6 +56,9 @@ class MainWindow(QMainWindow, Generic[T]):
         self._setup_menu_bar()
         
         # 상태바 설정
+        from ui.widgets.status_widget import StatusWidget
+        self.status_widget = StatusWidget()
+        self.statusBar().addPermanentWidget(self.status_widget)
         self.statusBar().showMessage("Ready")
         
         self.log_info("메인 윈도우 UI 초기화 완료")
