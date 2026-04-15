@@ -1,9 +1,9 @@
 from PySide6.QtCore import QObject, Signal, QThread
 
-from core.events.qt_bus import EVENT_BUS
+from core.mixins.log_mixin import LogMixin
 
 
-class BaseWorker(QObject):
+class BaseWorker(QObject, LogMixin):
     """
     백그라운드 작업을 수행하는 Worker의 기본 클래스이다.
     스레드 제어는 완전히 Service에 위임하고, 오직 비즈니스 로직에만 집중한다.
@@ -16,19 +16,7 @@ class BaseWorker(QObject):
 
     def __init__(self):
         super().__init__()
-        self.log_source = self.__class__.__name__
-
-    # ==========================================================
-    # [외부 접근] 로깅
-    # ==========================================================
-    def log(self, message: str, level: str = "INFO"):
-        """EventBus를 통해 로그를 전송한다."""
-        EVENT_BUS.log.message.emit(self.log_source, message, level)
-
-    def log_info(self, message: str): self.log(message, "INFO")
-    def log_warning(self, message: str): self.log(message, "WARNING")
-    def log_error(self, message: str): self.log(message, "ERROR")
-    def log_debug(self, message: str): self.log(message, "DEBUG")
+        self.init_log_mixin()
 
     # ==========================================================
     # Entry Point

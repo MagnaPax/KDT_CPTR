@@ -1,9 +1,9 @@
 from PySide6.QtCore import QObject
 
-from core.events.qt_bus import EVENT_BUS
+from core.mixins.log_mixin import LogMixin
 
 
-class BaseManager(QObject):
+class BaseManager(QObject, LogMixin):
     """
     애플리케이션의 공통 상태(State)와 데이터를 보관/관리하는 매니저의 기본 클래스이다.
     여러 ViewModel에 주입(Injection)되어 공통의 진실 공급원(Single Source of Truth) 역할을 한다.
@@ -56,24 +56,4 @@ class BaseManager(QObject):
 
     def __init__(self):
         super().__init__()
-        # 로그 소스 이름 설정 (클래스 이름 자동 사용)
-        self.log_source = self.__class__.__name__
-
-    # ==========================================================
-    # [외부 접근] 로깅
-    # ==========================================================
-    def log(self, message: str, level: str = "INFO"):
-        """EventBus를 통해 로그를 전송한다."""
-        EVENT_BUS.log.message.emit(self.log_source, message, level)
-
-    def log_info(self, message: str):
-        self.log(message, "INFO")
-
-    def log_warning(self, message: str):
-        self.log(message, "WARNING")
-
-    def log_error(self, message: str):
-        self.log(message, "ERROR")
-
-    def log_debug(self, message: str):
-        self.log(message, "DEBUG")
+        self.init_log_mixin()

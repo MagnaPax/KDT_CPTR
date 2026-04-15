@@ -2,10 +2,10 @@ from typing import Dict, Optional, Tuple
 
 from PySide6.QtCore import QObject, QThread
 
-from core.events.qt_bus import EVENT_BUS
+from core.mixins.log_mixin import LogMixin
 
 
-class BaseService(QObject):
+class BaseService(QObject, LogMixin):
     """
     비즈니스 로직 및 Worker 스레드 라이프사이클을 관리하는 Service이다.
     공통적인 설정이나 리소스 관리, 스레드 관리를 수행한다.
@@ -14,24 +14,11 @@ class BaseService(QObject):
 
     def __init__(self):
         super().__init__()
-        # 로그 소스 이름 설정 (클래스 이름 자동 사용)
-        self.log_source = self.__class__.__name__
+        self.init_log_mixin()
 
         # 비동기 작업용 워커 저장소
         # 키: worker_id, 값: (QThread, QObject)
         self._active_workers: Dict[str, Tuple[QThread, QObject]] = {}
-
-    # ==========================================================
-    # [외부 접근] 로깅
-    # ==========================================================
-    def log(self, message: str, level: str = "INFO"):
-        """EventBus를 통해 로그를 전송한다."""
-        EVENT_BUS.log.message.emit(self.log_source, message, level)
-
-    def log_info(self, message: str): self.log(message, "INFO")
-    def log_warning(self, message: str): self.log(message, "WARNING")
-    def log_error(self, message: str): self.log(message, "ERROR")
-    def log_debug(self, message: str): self.log(message, "DEBUG")
 
     # ==========================================================
     # [내부 전용] Thread Setup
